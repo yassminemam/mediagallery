@@ -1,5 +1,6 @@
 package com.nagwa.mediagallery.ui.main.view
 
+import android.Manifest
 import android.app.DownloadManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,10 @@ import com.nagwa.mediagallery.ui.base.ViewModelFactory
 import com.nagwa.mediagallery.ui.main.adapter.MediaListAdapter
 import com.nagwa.mediagallery.ui.main.viewmodel.MainViewModel
 import com.nagwa.mediagallery.utils.Status
+import androidx.core.app.ActivityCompat
+
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MediaListAdapter
     private lateinit var listRecyclerView:RecyclerView
     private lateinit var loadingProgressBar:ProgressBar
+    private val PERMISSION_REQUEST_CODE = 190
     private val filePath:String = "media_list.json"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,13 +39,12 @@ class MainActivity : AppCompatActivity() {
         setupUI()
         setupViewModel()
         setupObserver()
+        requestPermission()
     }
     private fun setupUI() {
         listRecyclerView = findViewById(R.id.listRecyclerView)
         listRecyclerView.layoutManager = LinearLayoutManager(this)
-        val manager: DownloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-
-        adapter = MediaListAdapter(arrayListOf(), manager)
+        adapter = MediaListAdapter(arrayListOf())
         listRecyclerView.addItemDecoration(
             DividerItemDecoration(
                 listRecyclerView.context,
@@ -82,5 +87,12 @@ class MainActivity : AppCompatActivity() {
             this,
             ViewModelFactory(MediaRepoHelper(), applicationContext, filePath)
         ).get(MainViewModel::class.java)
+    }
+
+    private fun requestPermission() {
+        ActivityCompat.requestPermissions(
+            this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            PERMISSION_REQUEST_CODE
+        )
     }
 }
